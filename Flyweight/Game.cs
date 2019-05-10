@@ -92,7 +92,7 @@ namespace Flyweight
             }
             catch (Exception ex)
             {
-                UserIO.SayToUser("Incorrect input");
+                UserIO.SayToUser("Incorrect input or something went wrong =(");
                 return;
             }
         }

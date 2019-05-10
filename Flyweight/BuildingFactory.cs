@@ -1,11 +1,10 @@
-﻿using ServiceStack.Redis;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Flyweight
 {
-    public class BuildingFactory
+    public class BuildingFactory : IBuildingFactory
     {
         private List<BuildingPlan> _buildingPlans;
 
