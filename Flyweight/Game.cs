@@ -11,7 +11,7 @@ namespace Flyweight
         private RedisClient _redisClient;
         public void StartGame()
         {
-            var cityName = UserIO.GetUserAnswer("Hello ElPrezedente!\nEnter your new city name:\n");
+            var cityName = UserIO.GetUserAnswer("Hello ElPrezedente!\nEnter your new city name:");
             _redisClient = new RedisClient("localhost");
             _city = _redisClient.Get<City>(cityName.ToLower());
 
@@ -29,62 +29,85 @@ namespace Flyweight
 
         private void Continue()
         {
-            var controll = UserIO.GetUserControll();
-
-            if (controll == ConsoleKey.A)
+            try
             {
-                int buildigAmount = Convert.ToInt32(UserIO.GetUserAnswer("How many building you want?"));
-                string planName = UserIO.GetUserAnswer("What building do you want to build?");
-                _city.AddBuildingsAmount(buildigAmount, planName);
-                return;
-            }
+                var controll = UserIO.GetUserControll();
 
-            if (controll == ConsoleKey.S)
-            {
-                foreach (string stat in _city.GetStats())
+                if (controll == ConsoleKey.A)
                 {
-                    UserIO.SayToUser(stat);
+                    int buildigAmount = Convert.ToInt32(UserIO.GetUserAnswer("How many building you want?"));
+
+                    UserIO.SayToUser($"Available plans: ");
+                    foreach (string plan in _city.GetPlansAsString())
+                    {
+                        UserIO.SayToUser(plan);
+                    }
+
+                    string planName = UserIO.GetUserAnswer("What building plan do you want to build?");
+
+                    _city.AddBuildingsAmount(buildigAmount, planName);
+                    return;
                 }
-                return;
-            }
 
-            if (controll == ConsoleKey.F)
-            {
-                Finish();
-                return;
-            }
-
-            if (controll == ConsoleKey.R)
-            {
-                UserIO.SayToUser("Are you realy want tot restart?");
-                var answer = UserIO.GetUserYN();
-
-                if ((bool)answer)
+                if (controll == ConsoleKey.S)
                 {
-                    Restart();
+                    foreach (string stat in _city.GetStats())
+                    {
+                        UserIO.SayToUser(stat);
+                    }
+                    UserIO.SayToUser(string.Empty);
+                    return;
                 }
-                return;
-            }
 
-            if (controll == ConsoleKey.Q)
-            {
-                Preview(PreviewType.Picture);
-                return;
-            }
+                if (controll == ConsoleKey.F)
+                {
+                    Finish();
+                    return;
+                }
 
-            if (controll == ConsoleKey.E)
+                if (controll == ConsoleKey.R)
+                {
+                    UserIO.SayToUser("Are you realy want tot restart?");
+                    var answer = UserIO.GetUserYN();
+
+                    if ((bool)answer)
+                    {
+                        Restart();
+                    }
+                    return;
+                }
+
+                if (controll == ConsoleKey.Q)
+                {
+                    Preview(PreviewType.Picture);
+                    return;
+                }
+
+                if (controll == ConsoleKey.E)
+                {
+                    Preview(PreviewType.Schema);
+                    return;
+                }
+                ElseCase();
+            }
+            catch (Exception ex)
             {
-                Preview(PreviewType.Schema);
+                UserIO.SayToUser("Incorrect input");
                 return;
             }
-            ElseCase();
         }
 
         private void Preview(PreviewType type)
         {
-            UserIO.SayToUser("Available plans");
             var plansNameWIndexes = _city.GetPlansAsString();
 
+            if (plansNameWIndexes == null || plansNameWIndexes.Count < 1)
+            {
+                UserIO.SayToUser("No available plans\n");
+                return;
+            }
+
+            UserIO.SayToUser("Available plans");
             foreach (string name in plansNameWIndexes)
             {
                 UserIO.SayToUser(name);
@@ -92,6 +115,12 @@ namespace Flyweight
 
             var key = UserIO.GetUserAnswer("Select plan index from list");
             var plan = _city.GetBuildingPlanFromFactoryByIndex(Convert.ToInt32(key));
+
+            if (plan == null)
+            {
+                UserIO.SayToUser("Id not found, probably you are idiot.");
+                return;
+            }
 
             if (type == PreviewType.Picture)
             {

@@ -33,12 +33,17 @@ namespace Flyweight
             }
         }
 
-        public void AddBuildingsAmount(int amount, string planName)
+        public void AddBuildingsAmount(int amount, string planNameOrId)
         {
             for (int i = 0; i < amount; i++)
             {
                 var address = new PlaceNameGenerator().GenerateRandomPlaceName();
-                Building building = _buildingFactory.BuildNewBuilding(address, planName);
+                Building building = _buildingFactory.BuildNewBuilding(address, planNameOrId);
+                if (building == null)
+                {
+                    UserIO.SayToUser("New building plan added\n");
+                    return;
+                }
 
                 _buildings.Add(building);
             }
@@ -57,9 +62,9 @@ namespace Flyweight
 
             foreach (var property in this.GetType().GetProperties())
             {
-                Console.WriteLine($"{property.Name} = {property.GetValue(this)}");
+                stats.Add($"{property.Name} = {property.GetValue(this)}");
             }
-
+            stats.Add(GetBuildingsCount());
             return stats;
         }
 
@@ -70,7 +75,17 @@ namespace Flyweight
 
         public BuildingPlan GetBuildingPlanFromFactoryByIndex(int index)
         {
-            return _buildingFactory.GetBuildingPlanByIndex(index);
+            BuildingPlan plan = null as BuildingPlan;
+            try
+            {
+                plan = _buildingFactory.GetBuildingPlanByIndex(index);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return plan;
         }
     }
 }

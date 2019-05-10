@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Drawing;
-using DotImaging;
-using System.IO;
+using System.Text;
+using System.Windows.Forms;
 
 namespace Flyweight
 {
@@ -10,6 +9,8 @@ namespace Flyweight
         [STAThread]
         static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
+            Application.EnableVisualStyles();
             Game game = new Game();
             game.StartGame();
         }
