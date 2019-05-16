@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using Flyweight.Entities;
+using System.Collections.Generic;
 
-namespace Flyweight
+namespace Flyweight.Interfaces
 {
     public interface IBuildingFactory
     {
-        Building BuildNewBuilding(string address, string planNameOrId);
+        Building BuildNewBuilding(string planNameOrId);
         List<string> GetBuildingPlansNames();
         List<string> GetNamesListWithIndexes();
         BuildingPlan GetBuildingPlanByIndex(int index);

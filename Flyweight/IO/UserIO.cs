@@ -1,9 +1,10 @@
 ﻿using DotImaging;
+using Flyweight.Enums;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Flyweight
+namespace Flyweight.IO
 {
     public static class UserIO
     {

@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Flyweight.Enums;
+using System;
 using System.Drawing;
 
-namespace Flyweight
+namespace Flyweight.Models
 {
     public class BuildingPlanModel
     {

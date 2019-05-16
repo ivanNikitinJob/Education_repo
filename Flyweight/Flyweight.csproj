@@ -18,10 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="PicBox.cs">
+    <Compile Update="IO\PicBox.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="PicBox.Designer.cs">
+    <Compile Update="IO\PicBox.Designer.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Properties\Resources.Designer.cs">

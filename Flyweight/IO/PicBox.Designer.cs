@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace Flyweight
+namespace Flyweight.IO
 {
     partial class PicBox
     {

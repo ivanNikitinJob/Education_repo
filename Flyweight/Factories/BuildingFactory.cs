@@ -1,18 +1,24 @@
-﻿using System;
+﻿using Flyweight.Builders;
+using Flyweight.Entities;
+using Flyweight.Interfaces;
+using Flyweight.IO;
+using Flyweight.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Flyweight
+namespace Flyweight.Factories
 {
     public class BuildingFactory : IBuildingFactory
     {
         private List<BuildingPlan> _buildingPlans;
-
+        private IBuilder _builder;
         public BuildingFactory()
         {
             _buildingPlans = new List<BuildingPlan>();
+            _builder = new SimpleBuilder();
         }
-        public Building BuildNewBuilding(string address, string planNameOrId)
+        public Building BuildNewBuilding(string planNameOrId)
         {
             int indexOfPlan;
             BuildingPlan selectPlan = null as BuildingPlan;
@@ -46,13 +52,14 @@ namespace Flyweight
 
             if (selectPlan != null)
             {
-                building = new Building(address, selectPlan);
+                _builder.Build(selectPlan);
+                building = _builder.GetBuilding();
             }
 
             if (selectPlan == null)
             {
                 var newPlan = UserIO.GetUserAnswer("Input building plan do you want to build?");
-                building = BuildNewBuilding(address, newPlan);
+                building = BuildNewBuilding(newPlan);
             }
 
             return building;

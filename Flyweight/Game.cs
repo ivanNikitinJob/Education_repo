@@ -1,7 +1,8 @@
-﻿using ServiceStack.Redis;
+﻿using Flyweight.Entities;
+using Flyweight.Enums;
+using Flyweight.IO;
+using ServiceStack.Redis;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Flyweight
 {

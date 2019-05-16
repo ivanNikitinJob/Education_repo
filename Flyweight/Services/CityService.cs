@@ -1,36 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Flyweight.Entities;
+using Flyweight.Factories;
+using Flyweight.Interfaces;
+using Flyweight.IO;
 using RandomNameGeneratorLibrary;
 using ServiceStack.Redis;
+using System;
+using System.Collections.Generic;
 
-namespace Flyweight
+namespace Flyweight.Services
 {
-    class City
+    public class CityService
     {
-        private BuildingFactory _buildingFactory;
-        private List<Building> _buildings;
+        private IBuildingFactory _buildingFactory;
+        private City _city;
         private RedisClient _redisClient;
+        private List<Building> _cityBuildings;
 
-        private readonly string _buildingsRedisKey = "b";
-
-        public string Name { get; set; }
-        public string ElPrezedenteName { get; set; }
-        public int Population { get; set; }
-        public double Budget { get; set; }
-        public int Happiness { get; set; }
-
-        public City(string name)
+        public CityService(City city)
         {
             _buildingFactory = new BuildingFactory();
+            _city = city;
+            _cityBuildings = _city.GetBuildings();
             _redisClient = new RedisClient("localhost");
-
-            Name = name;
-            _buildings = _redisClient.Get<List<Building>>($"{_buildingsRedisKey}{Name.ToLower()}");
-
-            if (_buildings == null)
-            {
-                _buildings = new List<Building>();
-            }
         }
 
         public void AddBuildingsAmount(int amount, string planNameOrId)
@@ -38,31 +29,31 @@ namespace Flyweight
             for (int i = 0; i < amount; i++)
             {
                 var address = new PlaceNameGenerator().GenerateRandomPlaceName();
-                Building building = _buildingFactory.BuildNewBuilding(address, planNameOrId);
+                Building building = _buildingFactory.BuildNewBuilding(planNameOrId);
                 if (building == null)
                 {
                     UserIO.SayToUser("New building plan added\n");
                     return;
                 }
 
-                _buildings.Add(building);
+                _cityBuildings.Add(building);
             }
 
-            _redisClient.Set($"{_buildingsRedisKey}{Name.ToLower()}", _buildings);
+            _redisClient.Set($"{_city.buildingsRedisKey}{_city.Name.ToLower()}", _cityBuildings);
         }
 
         public string GetBuildingsCount()
         {
-            return $"Building count = {_buildings.Count}";
+            return $"Building count = {_cityBuildings.Count}";
         }
 
         public List<string> GetStats()
         {
             List<string> stats = new List<string>();
 
-            foreach (var property in this.GetType().GetProperties())
+            foreach (var property in _city.GetType().GetProperties())
             {
-                stats.Add($"{property.Name} = {property.GetValue(this)}");
+                stats.Add($"{property.Name} = {property.GetValue(_city)}");
             }
             stats.Add(GetBuildingsCount());
             return stats;

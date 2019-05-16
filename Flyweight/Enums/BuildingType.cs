@@ -1,5 +1,5 @@
-﻿namespace Flyweight
-{
+﻿namespace Flyweight.Enums
+{ 
     public enum BuildingType
     {
         Unknown = 0,
