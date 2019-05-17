@@ -38,7 +38,7 @@ namespace Flyweight.Factories
             if (selectPlan == null)
             {
                 selectPlan = _buildingPlans.Where(splan => splan.Name == planNameOrId)
-                  .OrderBy(x => x.AverageCost)
+                  .OrderBy(x => x.Cost)
                   .FirstOrDefault();
             }
             if (selectPlan == null)
@@ -52,7 +52,7 @@ namespace Flyweight.Factories
 
             if (selectPlan != null)
             {
-                _builder.Build(selectPlan);
+                _builder.BuildAsync(selectPlan);
                 building = _builder.GetBuilding();
             }
 
@@ -79,13 +79,13 @@ namespace Flyweight.Factories
 
             if ((bool)answer)
             {
-                planModel.Author = UserIO.GetUserAnswer("Author of plan name?");
                 planModel.Name = UserIO.GetUserAnswer("Plan name?");
-                planModel.AverageCost = Convert.ToDouble(UserIO.GetUserAnswer("Average building cost?"));
+                planModel.Cost = Convert.ToDouble(UserIO.GetUserAnswer("Average building cost?"));
                 planModel.HumanCapacity = Convert.ToInt32(UserIO.GetUserAnswer("Human capacity?"));
                 planModel.BuildingType = UserIO.GetBuildingType("Select building type");
                 planModel.Picture = UserIO.GetImage("Select plan preview image");
                 planModel.Schema = UserIO.GetImage("Select plan Schema");
+                planModel.Luxury = Convert.ToDouble(UserIO.GetUserAnswer("How luxury is it?"));
 
                 BuildingPlan buildingPlan = new BuildingPlan(planModel);
                 return buildingPlan;

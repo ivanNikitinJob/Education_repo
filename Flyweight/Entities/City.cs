@@ -11,18 +11,22 @@ namespace Flyweight.Entities
         private CityService _cityService;
 
         public readonly string buildingsRedisKey = "b";
+        public readonly double starerCash = 10000;
 
         public string Name { get; set; }
         public string ElPrezedenteName { get; set; }
         public int Population { get; set; }
         public double Budget { get; set; }
         public int Happiness { get; set; }
+        public int Day { get; set; }
 
         public City(string name)
         {
             _redisClient = new RedisClient("localhost");
 
+            Day = 0;
             Name = name;
+            Budget = starerCash;
             _buildings = _redisClient.Get<List<Building>>($"{buildingsRedisKey}{Name.ToLower()}");
 
             if (_buildings == null)
@@ -32,34 +36,31 @@ namespace Flyweight.Entities
             _cityService = new CityService(this);
         }
 
-        public List<Building> GetBuildings()
+        public List<Building> GetBuildings() => _buildings;
+        public void AddBuildingsAmount(int amount, string planNameOrId) => _cityService.AddBuildingsAmount(amount, planNameOrId);
+        public string GetBuildingsCount() => _cityService.GetBuildingsCount();
+        public List<string> GetStats() => _cityService.GetStats();
+        public List<string> GetPlansAsString() => _cityService.GetPlansAsString();
+        public BuildingPlan GetBuildingPlanFromFactoryByIndex(int index) => _cityService.GetBuildingPlanFromFactoryByIndex(index);
+        public bool Buy(double money)
         {
-            return _buildings;
+            if (Budget < money)
+            {
+                return false;
+            }
+            Budget -= money;
+
+            return true;
         }
 
-        public void AddBuildingsAmount(int amount, string planNameOrId)
+        public async void GatherTaxes()
         {
-            _cityService.AddBuildingsAmount(amount, planNameOrId);
+            await _cityService.GatherTaxesAsync();
         }
 
-        public string GetBuildingsCount()
+        public async void PayForService()
         {
-            return _cityService.GetBuildingsCount();
-        }
-
-        public List<string> GetStats()
-        {
-            return _cityService.GetStats();
-        }
-
-        public List<string> GetPlansAsString()
-        {
-            return _cityService.GetPlansAsString();
-        }
-
-        public BuildingPlan GetBuildingPlanFromFactoryByIndex(int index)
-        {
-            return _cityService.GetBuildingPlanFromFactoryByIndex(index);
+            await _cityService.PayForBuildingsAsync();
         }
     }
 }

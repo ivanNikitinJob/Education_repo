@@ -9,7 +9,7 @@ namespace Flyweight.Interfaces
 {
     interface IBuilder
     {
-        void Build(BuildingPlan selectPlan);
+        void BuildAsync(BuildingPlan selectPlan);
         Building GetBuilding();
     }
 }

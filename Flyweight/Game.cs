@@ -3,6 +3,8 @@ using Flyweight.Enums;
 using Flyweight.IO;
 using ServiceStack.Redis;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Flyweight
 {
@@ -10,6 +12,9 @@ namespace Flyweight
     {
         private City _city;
         private RedisClient _redisClient;
+        private readonly int milisecondsToDay = 5000;
+        private readonly int dayOfServise = 10;
+
         public void StartGame()
         {
             var cityName = UserIO.GetUserAnswer("Hello ElPrezedente!\nEnter your new city name:");
@@ -24,15 +29,36 @@ namespace Flyweight
 
             while (_city != null)
             {
-                Continue();
+                var tokenSource = new CancellationTokenSource();
+
+                var task = new Task(() => GameFlow(tokenSource.Token)); // this doesnt work properly
+                task.Start();
+                PlayAction(tokenSource);
             }
         }
 
-        private void Continue()
+        private void GameFlow(CancellationToken token)
+        {
+            while (true)
+            {
+                if (token.IsCancellationRequested)
+                {
+                    return;
+                }
+                Thread.Sleep(milisecondsToDay);
+                StartNewDay();
+            }
+        }
+
+        private void PlayAction(CancellationTokenSource token)
         {
             try
             {
                 var controll = UserIO.GetUserControll();
+                if (token.Token.CanBeCanceled)
+                {
+                    token.Cancel();
+                }
 
                 if (controll == ConsoleKey.A)
                 {
@@ -68,7 +94,7 @@ namespace Flyweight
 
                 if (controll == ConsoleKey.R)
                 {
-                    UserIO.SayToUser("Are you realy want tot restart?");
+                    UserIO.SayToUser("Are you realy want to restart?");
                     var answer = UserIO.GetUserYN();
 
                     if ((bool)answer)
@@ -90,11 +116,16 @@ namespace Flyweight
                     return;
                 }
                 ElseCase();
+
             }
             catch (Exception ex)
             {
                 UserIO.SayToUser("Incorrect input or something went wrong =(");
                 return;
+            }
+            finally
+            {
+                token.Dispose();
             }
         }
 
@@ -131,6 +162,18 @@ namespace Flyweight
             if (type == PreviewType.Schema)
             {
                 plan.LookOnSchema();
+            }
+        }
+
+        private void StartNewDay()
+        {
+            _city.Day++;
+
+            _city.GatherTaxes();
+
+            if (_city.Day % dayOfServise == 0)
+            {
+                _city.PayForService();
             }
         }
 

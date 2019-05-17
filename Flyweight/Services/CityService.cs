@@ -2,10 +2,10 @@
 using Flyweight.Factories;
 using Flyweight.Interfaces;
 using Flyweight.IO;
-using RandomNameGeneratorLibrary;
 using ServiceStack.Redis;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Flyweight.Services
 {
@@ -28,7 +28,6 @@ namespace Flyweight.Services
         {
             for (int i = 0; i < amount; i++)
             {
-                var address = new PlaceNameGenerator().GenerateRandomPlaceName();
                 Building building = _buildingFactory.BuildNewBuilding(planNameOrId);
                 if (building == null)
                 {
@@ -39,7 +38,7 @@ namespace Flyweight.Services
                 _cityBuildings.Add(building);
             }
 
-            _redisClient.Set($"{_city.buildingsRedisKey}{_city.Name.ToLower()}", _cityBuildings);
+            _redisClient.Set($"{_city.buildingsRedisKey}{_city.Name.ToLower()}", _city);
         }
 
         public string GetBuildingsCount()
@@ -59,10 +58,7 @@ namespace Flyweight.Services
             return stats;
         }
 
-        public List<string> GetPlansAsString()
-        {
-            return _buildingFactory.GetBuildingPlansNames();
-        }
+        public List<string> GetPlansAsString() => _buildingFactory.GetBuildingPlansNames();
 
         public BuildingPlan GetBuildingPlanFromFactoryByIndex(int index)
         {
@@ -77,6 +73,33 @@ namespace Flyweight.Services
             }
 
             return plan;
+        }
+
+        public async Task GatherTaxesAsync()
+        {
+            double taxSum = 0d;
+            await Task.Run(() =>
+            {
+                foreach (Building building in _cityBuildings)
+                {
+                    taxSum += building.HumanCount * building.BuildingPlan.Tax;
+                }
+            });
+
+            _city.Budget += taxSum;
+        }
+        public async Task PayForBuildingsAsync()
+        {
+            double serviceCost = 0d;
+            await Task.Run(() =>
+            {
+                foreach (Building building in _cityBuildings)
+                {
+                    serviceCost += building.BuildingPlan.ServiceCost;
+                }
+            });
+
+            _city.Budget -= serviceCost;
         }
     }
 }
